@@ -1,0 +1,73 @@
+# --- Unity generated ---
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+UserSettings/
+[Aa]ssets/AssetStoreTools*
+
+# Cache/analysis
+ProfileAnalyzer/
+*.profiler
+*.cginc.meta
+
+# --- Keep meta files for tracked Assets ---
+!/[Aa]ssets/**/*.meta
+
+# --- Visual Studio / Rider / VSCode ---
+.vs/
+.vscode/
+.idea/
+*.sln
+*.csproj
+*.unityproj
+*.user
+*.userprefs
+*.suo
+*.tmp
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.DotSettings.user
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- Crash/diagnostics ---
+sysinfo.txt
+*.stacktrace
+
+# --- Mobile/Console build artifacts (optional but recommended) ---
+*.apk
+*.aab
+*.ipa
+*.xcarchive
+*.app
+*.app.dSYM.zip
+
+# --- Addressables (generated) ---
+/[Aa]ssets/[Aa]ddressableAssetsData/*/*.bin*
+/[Aa]ssets/StreamingAssets/aa/*
+
+# --- Gradle / Android (generated) ---
+.gradle/
+**/gradle/wrapper/gradle-wrapper.jar
+**/gradle/wrapper/gradle-wrapper.properties
+ExportedObj/
+UnityGenerated/
+
+# --- TextMeshPro (generated) ---
+[Aa]ssets/TextMesh Pro/Resources/Font Assets/*_Atlas.png
+[Aa]ssets/TextMesh Pro/Resources/Font Assets/*_Atlas.png.meta
+
+# --- Shader cache (generated) ---
+[Aa]ssets/**/ShaderCache/
