@@ -2,23 +2,34 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AbilitySystem : MonoBehaviour
+namespace dutpekmezi
 {
-    [SerializeField] private List<AbilityBase> abilities;
-
-    public List<AbilityBase> Abilities => abilities;
-
-    private static AbilitySystem instance;
-
-    public static AbilitySystem Instance => instance;
-
-    private void Start()
+    public class AbilitySystem : MonoBehaviour
     {
-        if (instance != null && instance != this)
+        [SerializeField] private List<AbilityBase> abilities;
+
+        public List<AbilityBase> Abilities => abilities;
+
+        private static AbilitySystem instance;
+
+        public static AbilitySystem Instance => instance;
+
+        private void Start()
         {
-            Destroy(instance);
+            if (instance != null && instance != this)
+            {
+                Destroy(instance);
+            }
+
+            instance = this;
         }
 
-        instance = this;
+        public AbilityBase GainAbility(AbilityBase ability)
+        {
+            if (abilities.Contains(ability)) return null;
+
+            abilities.Add(ability);
+            return ability;
+        }
     }
 }

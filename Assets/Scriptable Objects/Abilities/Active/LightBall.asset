@@ -12,17 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 642eca761b3513d48bb69764f5eebb10, type: 3}
   m_Name: LightBall
   m_EditorClassIdentifier: 
-  AbilityId: 
-  Name: 
-  Description: 
-  Icon: {fileID: 0}
+  AbilityId: light_ball
+  Name: Light Ball
+  Description: A light ball turning around you
+  Icon: {fileID: 21300000, guid: 119f93d0bcbf1e743bf5fcf237507d39, type: 3}
   Background: {fileID: 0}
-  IsActive: 0
-  StarPrefab: {fileID: 0}
-  InitialCount: 1
-  Radius: 1.6
-  AngularSpeedDeg: 120
-  Clockwise: 0
-  SelfSpinSpeedDeg: 360
-  SelfSpinAxis: {x: 0, y: 0, z: 1}
-  SelfSpinClockwise: 0
+  IsActive: 1
+  abilityPrefab: {fileID: 1049342777927229628, guid: dd5613fe1546d3941a9976603ffadc59, type: 3}
+  initialCount: 1
+  radius: 1.6
+  angularSpeedDeg: 120
+  clockwise: 0
+  selfSpinSpeedDeg: 360
+  selfSpinAxis: {x: 0, y: 0, z: 1}
+  selfSpinClockwise: 0

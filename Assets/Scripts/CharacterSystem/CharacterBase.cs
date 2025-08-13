@@ -13,6 +13,10 @@ namespace dutpekmezi
         [Header("Movement Settings")]
         [SerializeField] private bool useRawInput = true; // I prefer snappy WASD (no smoothing) for a top-down feel
 
+        [Header("Stats")]
+        [SerializeField] private int currentHealth;
+        [SerializeField] private int currentLevel;
+
 
         private Camera mainCam;   // cached main camera
         private Rigidbody2D rb;   // I’ll drive velocity for proper collisions
@@ -28,17 +32,6 @@ namespace dutpekmezi
         {
             transform.rotation = Quaternion.Euler(0, 0, 0); // start with a clean rotation
             LookAtMouse();                                  // do an initial aim so the character isn't in a weird default pose
-
-            // hook ability listeners once (single-player; no need for runtime clones)
-            if (characterData != null && AbilitySystem.Instance.Abilities != null)
-            {
-                foreach (var ability in AbilitySystem.Instance.Abilities)
-                {
-                    if (ability == null) continue;
-                    ability.Listener(this); // let the ability cache owner / subscribe to events if needed
-                    ability.Init(this);     // optional hook
-                }
-            }
         }
 
         void Update()

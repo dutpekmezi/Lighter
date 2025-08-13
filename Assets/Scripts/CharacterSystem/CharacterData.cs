@@ -9,6 +9,7 @@ namespace dutpekmezi
         public string Name;
 
         public int MaxHealth;
+        public int MaxLevel;
         public float MoveSpeed;
 
         public CharacterBase Prefab;

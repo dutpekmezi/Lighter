@@ -9,16 +9,16 @@ namespace dutpekmezi
     public class LightBall : AbilityBase
     {
         [Header("Orbit Config")]
-        public GameObject StarPrefab;
-        public int InitialCount = 1;
-        public float Radius = 1.6f;
-        public float AngularSpeedDeg = 120f;
-        public bool Clockwise = false;
+        public GameObject abilityPrefab;
+        public int initialCount = 1;
+        public float radius = 1.6f;
+        public float angularSpeedDeg = 120f;
+        public bool clockwise = false;
 
         [Header("Self Spin")]
-        public float SelfSpinSpeedDeg = 360f; // how fast each star spins around its own axis
-        public Vector3 SelfSpinAxis = Vector3.forward; // Z for 2D top-down, Y for 3D
-        public bool SelfSpinClockwise = false; // flip spin direction if needed
+        public float selfSpinSpeedDeg = 360f; // how fast each star spins around its own axis
+        public Vector3 selfSpinAxis = Vector3.forward; // Z for 2D top-down, Y for 3D
+        public bool selfSpinClockwise = false; // flip spin direction if needed
 
         // runtime state (single player, so keeping it here is OK)
         private readonly List<Transform> stars = new List<Transform>();
@@ -26,7 +26,7 @@ namespace dutpekmezi
         private float baseAngleDeg; // phase angle for rotation
         private Transform center;   // cached character transform
 
-        public override bool CanUse(CharacterBase character) => IsActive && character != null && StarPrefab != null && InitialCount > 0;
+        public override bool CanUse(CharacterBase character) => IsActive && character != null && abilityPrefab != null && initialCount > 0;
 
         public override void Listener(CharacterBase character)
         {
@@ -48,11 +48,11 @@ namespace dutpekmezi
                 if (facing.sqrMagnitude <= 0.0001f) facing = Vector2.right;
                 baseAngleDeg = Mathf.Atan2(facing.y, facing.x) * Mathf.Rad2Deg;
 
-                EnsureAtLeast(InitialCount); // spawn initial ring (with self spin)
+                EnsureAtLeast(initialCount); // spawn initial ring (with self spin)
             }
             else
             {
-                EnsureAtLeast(InitialCount); // make sure we have at least this many
+                EnsureAtLeast(initialCount); // make sure we have at least this many
             }
 
             if (orbitRoutine == null)
@@ -61,7 +61,7 @@ namespace dutpekmezi
 
         public void AddStars(int amount, CharacterBase character)
         {
-            if (amount <= 0 || character == null || StarPrefab == null) return;
+            if (amount <= 0 || character == null || abilityPrefab == null) return;
             center = character.transform;
             if (orbitRoutine == null) // if ring not running, start it
                 orbitRoutine = character.StartCoroutine(OrbitLoop());
@@ -78,19 +78,19 @@ namespace dutpekmezi
 
         private void SpawnOne()
         {
-            var go = Object.Instantiate(StarPrefab, Vector3.zero, Quaternion.identity); // detached, world-space
-            stars.Add(go.transform);
-            StartSelfSpin(go.transform); // spin this star around its own axis forever (DOTween)
+            var instance = Object.Instantiate(abilityPrefab, Vector3.zero, Quaternion.identity); // detached, world-space
+            stars.Add(instance.transform);
+            StartSelfSpin(instance.transform); // spin this star around its own axis forever (DOTween)
         }
 
         private void StartSelfSpin(Transform t)
         {
-            float speed = Mathf.Abs(SelfSpinSpeedDeg);
+            float speed = Mathf.Abs(selfSpinSpeedDeg);
             if (speed <= 0f || t == null) return;
 
             float dur = 360f / speed; // time to complete one full rotation
-            float sign = SelfSpinClockwise ? -1f : 1f;
-            Vector3 step = SelfSpinAxis.normalized * (360f * sign);
+            float sign = selfSpinClockwise ? -1f : 1f;
+            Vector3 step = selfSpinAxis.normalized * (360f * sign);
 
             t.DORotate(step, dur, RotateMode.FastBeyond360) // rotate by 'step' each loop
              .SetRelative(true)
@@ -114,8 +114,8 @@ namespace dutpekmezi
         {
             while (center != null && stars.Count > 0)
             {
-                float dir = Clockwise ? -1f : 1f;
-                baseAngleDeg += dir * AngularSpeedDeg * Time.deltaTime;
+                float dir = clockwise ? -1f : 1f;
+                baseAngleDeg += dir * angularSpeedDeg * Time.deltaTime;
 
                 int n = stars.Count;
                 for (int i = 0; i < n; i++)
@@ -132,7 +132,7 @@ namespace dutpekmezi
         {
             float rad = angleDeg * Mathf.Deg2Rad;
             Vector2 c = center.position;
-            Vector2 p = c + new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)) * Radius;
+            Vector2 p = c + new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)) * radius;
             star.position = p; // world-space; no parenting needed
         }
     }
