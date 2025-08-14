@@ -18,8 +18,6 @@ public abstract class AbilityBase : ScriptableObject
     public Guid UniqueId { get; } = Guid.NewGuid();
     public string UniqueAbilityId => $"{UniqueId}_{AbilityId}";
 
-    public void Init(CharacterBase owner) { } // optional hook (kept for future use)
-
     // can I use this ability right now with the given character?
     public abstract bool CanUse(CharacterBase character);
 

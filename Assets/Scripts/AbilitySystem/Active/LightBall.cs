@@ -16,58 +16,62 @@ namespace dutpekmezi
         public bool clockwise = false;
 
         [Header("Self Spin")]
-        public float selfSpinSpeedDeg = 360f; // how fast each star spins around its own axis
-        public Vector3 selfSpinAxis = Vector3.forward; // Z for 2D top-down, Y for 3D
-        public bool selfSpinClockwise = false; // flip spin direction if needed
+        public float selfSpinSpeedDeg = 360f;           // per-star local spin speed (deg/s)
+        public Vector3 selfSpinAxis = Vector3.forward;  // Z in 2D
+        public bool selfSpinClockwise = false;
 
-        // runtime state (single player, so keeping it here is OK)
+        [Header("Pulse")]
+        public float pulseScale = 1.25f;                // target scale multiplier
+        public float pulseDuration = 0.35f;             // up or down duration (Yoyo)
+        public Ease pulseEase = Ease.InOutSine;        // easing for pulse
+
         private readonly List<Transform> stars = new List<Transform>();
         private Coroutine orbitRoutine;
-        private float baseAngleDeg; // phase angle for rotation
-        private Transform center;   // cached character transform
+        private float baseAngleDeg;
+        private Transform center;
 
-        public override bool CanUse(CharacterBase character) => IsActive && character != null && abilityPrefab != null && initialCount > 0;
+        public override bool CanUse(CharacterBase character)
+            => IsActive && character != null && abilityPrefab != null && initialCount > 0;
 
         public override void Listener(CharacterBase character)
         {
-            base.Listener(character); // store owner
-            center = character ? character.transform : null; // cache center
+            base.Listener(character);
+            center = character ? character.transform : null;
         }
 
         public override void Activate(CharacterBase character)
         {
             if (!CanUse(character)) return;
 
-            this.character = character; // keep a valid owner ref for OrbitLoop
-            center = character.transform; // ensure fresh center
+            this.character = character;
+            center = character.transform;
 
             if (stars.Count == 0)
             {
-                // start phase from character's facing direction
-                Vector2 facing = character.transform.right; // 2D top-down: +X as forward
+                Vector2 facing = character.transform.right;
                 if (facing.sqrMagnitude <= 0.0001f) facing = Vector2.right;
                 baseAngleDeg = Mathf.Atan2(facing.y, facing.x) * Mathf.Rad2Deg;
 
-                EnsureAtLeast(initialCount); // spawn initial ring (with self spin)
+                EnsureAtLeast(initialCount);
             }
             else
             {
-                EnsureAtLeast(initialCount); // make sure we have at least this many
+                EnsureAtLeast(initialCount);
             }
 
             if (orbitRoutine == null)
-                orbitRoutine = character.StartCoroutine(OrbitLoop()); // run inside ability, hosted by character
+                orbitRoutine = character.StartCoroutine(OrbitLoop());
         }
 
         public void AddStars(int amount, CharacterBase character)
         {
             if (amount <= 0 || character == null || abilityPrefab == null) return;
             center = character.transform;
-            if (orbitRoutine == null) // if ring not running, start it
+            if (orbitRoutine == null)
                 orbitRoutine = character.StartCoroutine(OrbitLoop());
 
-            for (int i = 0; i < amount; i++) SpawnOne(); // each new star gets self spin
-            Redistribute(); // even spacing after change
+            for (int i = 0; i < amount; i++) SpawnOne();
+            Redistribute();
         }
 
         private void EnsureAtLeast(int count)
@@ -78,9 +82,12 @@ namespace dutpekmezi
 
         private void SpawnOne()
         {
-            var instance = Object.Instantiate(abilityPrefab, Vector3.zero, Quaternion.identity); // detached, world-space
-            stars.Add(instance.transform);
-            StartSelfSpin(instance.transform); // spin this star around its own axis forever (DOTween)
+            var instance = Object.Instantiate(abilityPrefab, Vector3.zero, Quaternion.identity);
+            var t = instance.transform;
+            stars.Add(t);
+
+            StartSelfSpin(t);   // continuous local spin
+            StartPulse(t);      // continuous DOScale pulse
         }
 
         private void StartSelfSpin(Transform t)
@@ -88,15 +95,26 @@ namespace dutpekmezi
             float speed = Mathf.Abs(selfSpinSpeedDeg);
             if (speed <= 0f || t == null) return;
 
-            float dur = 360f / speed; // time to complete one full rotation
+            float dur = 360f / speed; // one full rotation time
             float sign = selfSpinClockwise ? -1f : 1f;
             Vector3 step = selfSpinAxis.normalized * (360f * sign);
 
-            t.DORotate(step, dur, RotateMode.FastBeyond360) // rotate by 'step' each loop
+            t.DORotate(step, dur, RotateMode.FastBeyond360)
              .SetRelative(true)
              .SetLoops(-1, LoopType.Incremental)
              .SetEase(Ease.Linear)
-             .SetLink(t.gameObject); // auto-kill when the star is destroyed
+             .SetLink(t.gameObject); // auto-kill with object
+        }
+
+        private void StartPulse(Transform t)
+        {
+            if (t == null) return;
+            var baseScale = t.localScale;
+
+            t.DOScale(baseScale * pulseScale, pulseDuration) // up
+             .SetLoops(-1, LoopType.Yoyo)                    // then down, forever
+             .SetEase(pulseEase)
+             .SetLink(t.gameObject); // tween dies when object dies
         }
 
         private void Redistribute()
@@ -125,7 +143,7 @@ namespace dutpekmezi
                 }
                 yield return null;
             }
-            orbitRoutine = null; // stopped (no stars or no center)
+            orbitRoutine = null;
         }
 
         private void PositionStar(Transform star, float angleDeg)
@@ -133,7 +151,7 @@ namespace dutpekmezi
             float rad = angleDeg * Mathf.Deg2Rad;
             Vector2 c = center.position;
             Vector2 p = c + new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)) * radius;
-            star.position = p; // world-space; no parenting needed
+            star.position = p;
         }
     }
 }

@@ -1,16 +1,33 @@
 using UnityEngine;
 
-public class CharacterSystem : MonoBehaviour
+namespace dutpekmezi
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public class CharacterSystem : MonoBehaviour
     {
-        
-    }
+        private static CharacterSystem instance;
+        public static CharacterSystem Instance => instance;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        private CharacterBase character;
+
+        private void Awake()
+        {
+            if (instance != null && instance != this)
+            {
+                Destroy(instance);
+                return;
+            }
+
+            instance = this;
+        }
+
+        private void Start()
+        {
+            character = FindAnyObjectByType<CharacterBase>();
+        }
+
+        public CharacterBase GetCharacter()
+        {
+            return character;
+        }
     }
 }

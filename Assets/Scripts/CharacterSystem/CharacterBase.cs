@@ -36,11 +36,6 @@ namespace dutpekmezi
 
         void Update()
         {
-            if (Input.GetMouseButtonDown(0))
-            {
-                UseAbility();
-            }
-
             LookAtMouse(); // keep aiming toward the mouse
         }
 
@@ -49,18 +44,14 @@ namespace dutpekmezi
             Move(); // apply movement in FixedUpdate for consistent physics timing
         }
 
-        public void UseAbility()
+        public void ActivateAbility(AbilityBase ability)
         {
-            if (characterData == null || AbilitySystem.Instance.Abilities == null) return;
+            if (characterData == null || AbilitySystem.Instance.Abilities == null || AbilitySystem.Instance.GainedAbilities == null) return;
 
-            foreach (var ability in AbilitySystem.Instance.Abilities)
-            {
-                if (ability == null) continue;
-                if (!ability.IsActive) continue;
-                if (!ability.CanUse(this)) continue;
 
-                ability.Activate(this); // run the ability logic (e.g., orbiting stars, buffs, etc.)
-            }
+            if (ability == null || !ability.CanUse(this)) return;
+
+            ability.Activate(this); // run the ability logic (e.g., orbiting stars, buffs, etc.)
         }
 
         private void Move()
@@ -73,7 +64,7 @@ namespace dutpekmezi
             float speed = (characterData != null) ? characterData.MoveSpeed : 5f; // safe default if data is missing
             if (rb == null) return;
 
-            rb.linearVelocity = moveInput * speed; // Unity 6+ API; drives crisp top-down motion
+            rb.linearVelocity = moveInput * speed;
         }
 
         private void LookAtMouse()

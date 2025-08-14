@@ -23,5 +23,14 @@ namespace dutpekmezi
             nameText.text = ability.Name;
             descriptionText.text = ability.Description;
         }
+
+        public void OnCardClick()
+        {
+            AbilitySystem.Instance.GainAbility(ability);
+
+            var abilitySelectionController = FindAnyObjectByType<AbilitySelectionController>();
+
+            abilitySelectionController.HideAbilityCards();
+        }
     }
 }
