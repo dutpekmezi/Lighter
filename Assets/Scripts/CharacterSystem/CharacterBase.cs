@@ -1,9 +1,16 @@
+﻿using System;
 using UnityEngine;
 
 namespace dutpekmezi
 {
     public class CharacterBase : MonoBehaviour
     {
+        // Delegate definition for level-up notifications. 
+        public delegate void OnLevelUpEvent(CharacterBase character, int newLevel);
+
+        // Event that external systems can subscribe to when this character levels up.
+        public event OnLevelUpEvent OnLevelUp;
+
         [Header("Assigned Datas")]
         [SerializeField] private CharacterData characterData; // data container I'm wiring in the inspector
 
@@ -15,11 +22,12 @@ namespace dutpekmezi
 
         [Header("Stats")]
         [SerializeField] private int currentHealth;
-        [SerializeField] private int currentLevel;
+        [SerializeField] private int currentLevel = 0;
+        [SerializeField] private int currentExp;
 
 
         private Camera mainCam;   // cached main camera
-        private Rigidbody2D rb;   // I�ll drive velocity for proper collisions
+        private Rigidbody2D rb;   // I’ll drive velocity for proper collisions
         private Vector2 moveInput; // cached input each frame (normalized so diagonals aren't faster)
 
         void Awake()
@@ -37,6 +45,11 @@ namespace dutpekmezi
         void Update()
         {
             LookAtMouse(); // keep aiming toward the mouse
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                GainExp();
+            }
         }
 
         void FixedUpdate()
@@ -51,7 +64,7 @@ namespace dutpekmezi
 
             if (ability == null || !ability.CanUse(this)) return;
 
-            ability.Activate(this); // run the ability logic (e.g., orbiting stars, buffs, etc.)
+            ability.Activate(this); // run the ability logic
         }
 
         private void Move()
@@ -76,6 +89,23 @@ namespace dutpekmezi
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;              // signed angle in degrees on the XY plane
 
             transform.rotation = Quaternion.Euler(0f, 0f, angle + angleOffset);    // rotate around Z and add my sprite/model forward offset
+        }
+
+        public void LevelUp(int i = 1)
+        {
+            currentLevel += i;
+            currentExp = 0;
+            OnLevelUp?.Invoke(this, currentLevel); // trigger delegate event with both character context and new level
+        }
+
+        public void GainExp(int i = 1)
+        {
+            currentExp += i;
+
+            if (currentExp >= CharacterSystem.Instance.ExpForLevel[currentLevel])
+            {
+                LevelUp();
+            }
         }
     }
 }

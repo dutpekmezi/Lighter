@@ -456,6 +456,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7956444dfa3ef3c4eacc5ef2263a016d, type: 2}
   - {fileID: 11400000, guid: 728b1acf79db7c1479c3e8355a5c1f91, type: 2}
   gainedAbilities: []
+  maxAbilityCountPerLevel: 3
 --- !u!4 &1566255646
 Transform:
   m_ObjectHideFlags: 0
@@ -515,6 +516,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 383bbcbca71eff14bbd229ff25acade3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  expForLevel: 050000000a0000000f0000001400000019000000
 --- !u!1001 &1535691184183984056
 PrefabInstance:
   m_ObjectHideFlags: 0

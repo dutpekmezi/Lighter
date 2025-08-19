@@ -12,6 +12,9 @@ namespace dutpekmezi
         public List<AbilityBase> Abilities => abilities;
         public List<AbilityBase> GainedAbilities => gainedAbilities;
 
+        [SerializeField] private int maxAbilityCountPerLevel = 3;
+        public int MaxAbilityCountPerLevel => maxAbilityCountPerLevel;
+
         private static AbilitySystem instance;
         public static AbilitySystem Instance => instance;
 
@@ -79,11 +82,37 @@ namespace dutpekmezi
             var character = CharacterSystem.Instance != null ? CharacterSystem.Instance.GetCharacter() : null;
             if (character == null) { Debug.LogError("ActivateAbility: Character not found"); return ability; }
 
-            ability.Listener(character); // let ability cache owner / subscribe
+            ability.Listener(character);
             if (ability.IsActive && ability.CanUse(character))
-                ability.Activate(character); // active abilities start immediately; passives usually start via Listener
+                ability.Activate(character);
 
             return ability;
+        }
+
+        public List<string> GetRandomAbilities(bool excludeGained = true)
+        {
+            if (abilities == null || abilities.Count == 0) return new List<string>();
+
+            var seenIds = new HashSet<string>();
+            var pool = new List<AbilityBase>();
+            foreach (var a in abilities)
+            {
+                if (a == null) continue;
+                if (string.IsNullOrEmpty(a.AbilityId)) continue;
+                if (excludeGained && gainedAbilities.Any(g => g != null && g.AbilityId == a.AbilityId)) continue;
+                if (seenIds.Add(a.AbilityId)) pool.Add(a);
+            }
+
+            if (pool.Count == 0) return new List<string>();
+
+            for (int i = pool.Count - 1; i > 0; i--)
+            {
+                int j = Random.Range(0, i + 1);
+                (pool[i], pool[j]) = (pool[j], pool[i]);
+            }
+
+            int take = Mathf.Clamp(maxAbilityCountPerLevel, 0, pool.Count);
+            return pool.GetRange(0, take).Select(a => a.AbilityId).ToList();
         }
     }
 }

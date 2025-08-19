@@ -10,10 +10,36 @@ namespace dutpekmezi
         [SerializeField] private AbilityCard abilityCardPrefab;
         [SerializeField] private Transform abilityCardsParent;
 
-        [Header("Settings")]
-        [SerializeField] private int maxDisplayingCardsCount = 3;
+        private int maxDisplayingCardsCount = 3;
 
         private List<AbilityCard> displayingAbilityCards = new List<AbilityCard>();
+        private CharacterBase character;
+
+        private void OnEnable()
+        {
+            character = CharacterSystem.Instance != null
+                ? CharacterSystem.Instance.GetCharacter()
+                : FindAnyObjectByType<CharacterBase>();
+
+            if (character != null)
+                character.OnLevelUp += HandleLevelUp;
+        }
+
+        private void Start()
+        {
+            maxDisplayingCardsCount = AbilitySystem.Instance.MaxAbilityCountPerLevel;
+        }
+
+        private void OnDisable()
+        {
+            if (character != null)
+                character.OnLevelUp -= HandleLevelUp;
+        }
+
+        private void HandleLevelUp(CharacterBase sender, int newLevel) // updated to match delegate signature
+        {
+            DisplayAbilityCards();
+        }
 
         private void Update()
         {
@@ -28,7 +54,7 @@ namespace dutpekmezi
 
             RemoveCards(); // if displaying cards count greater than maxDisplayingCardsCount remove cards until desired maxDisplayingCardsCount
 
-            var abilities = AbilitySystem.Instance.Abilities;
+            var abilities = AbilitySystem.Instance.GetRandomAbilities();
 
             for (int i = 0; i < maxDisplayingCardsCount; i++)
             {
@@ -40,7 +66,7 @@ namespace dutpekmezi
 
                 if (i < abilities.Count && i < displayingAbilityCards.Count)
                 {
-                    displayingAbilityCards[i].Init(abilities[i]);
+                    displayingAbilityCards[i].Init(AbilitySystem.Instance.GetAbilityById(abilities[i]));
                 }
             }
         }

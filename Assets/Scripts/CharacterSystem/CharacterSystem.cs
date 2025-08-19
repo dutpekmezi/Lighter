@@ -1,3 +1,5 @@
+using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace dutpekmezi
@@ -8,6 +10,10 @@ namespace dutpekmezi
         public static CharacterSystem Instance => instance;
 
         private CharacterBase character;
+
+        [Header("Settings")]
+        [SerializeField] private List<int> expForLevel = new List<int>();
+        public List<int> ExpForLevel => expForLevel;
 
         private void Awake()
         {
