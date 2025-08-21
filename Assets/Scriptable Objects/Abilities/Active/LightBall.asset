@@ -17,7 +17,13 @@ MonoBehaviour:
   Description: A light ball turning around you
   Icon: {fileID: 21300000, guid: 119f93d0bcbf1e743bf5fcf237507d39, type: 3}
   Background: {fileID: 0}
-  IsActive: 1
+  MaxCount: 5
+  CurrentCount: 0
+  Speed: 0
+  Damage: 0
+  baseScaleAmount: 1
+  scaleMultiplier: 1
+  IsActualAbility: 1
   abilityPrefab: {fileID: 1049342777927229628, guid: dd5613fe1546d3941a9976603ffadc59, type: 3}
   initialCount: 1
   radius: 1.8

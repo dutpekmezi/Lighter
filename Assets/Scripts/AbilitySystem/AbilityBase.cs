@@ -2,31 +2,44 @@ using dutpekmezi;
 using System;
 using UnityEngine;
 
-public abstract class AbilityBase : ScriptableObject
+namespace dutpekmezi
 {
-    [Header("Ability Data")]
-    public string AbilityId;
-    public string Name;
-    public string Description;
-    public Sprite Icon;
-    public Sprite Background;
-
-    public bool IsActive;
-
-    protected CharacterBase character; // owner reference I keep after Listener/Activate
-
-    public Guid UniqueId { get; } = Guid.NewGuid();
-    public string UniqueAbilityId => $"{UniqueId}_{AbilityId}";
-
-    // can I use this ability right now with the given character?
-    public abstract bool CanUse(CharacterBase character);
-
-    // allow the ability to cache the owner and subscribe to events if needed
-    public virtual void Listener(CharacterBase character)
+    public abstract class AbilityBase : ScriptableObject
     {
-        this.character = character; // store owner reference
-    }
+        [Header("Ability Data")]
+        public string AbilityId;
+        public string Name;
+        public string Description;
+        public Sprite Icon;
+        public Sprite Background;
 
-    // do the thing
-    public abstract void Activate(CharacterBase character);
+        [Header("Settings")]
+        public int MaxCount;
+        public int CurrentCount;
+        public float Speed;
+        public float Damage;
+
+        public float baseScaleAmount = 1f;
+        public float scaleMultiplier = 1f;
+
+        [Tooltip("If true, this is an active ability with gameplay effect. If false, it's a passive upgrade.")]
+        public bool IsActualAbility = true;
+
+        protected CharacterBase character; // cached owner after Listener/Activate
+
+        public Guid UniqueId { get; } = Guid.NewGuid();
+        public string UniqueAbilityId => $"{UniqueId}_{AbilityId}";
+
+        // can this ability be used at the moment?
+        public abstract bool CanUse(CharacterBase character);
+
+        // cache character reference or subscribe to events
+        public virtual void Listener(CharacterBase character)
+        {
+            this.character = character;
+        }
+
+        // main execution of the ability
+        public abstract void Activate(CharacterBase character);
+    }
 }

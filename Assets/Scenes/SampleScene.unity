@@ -453,10 +453,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilities:
   - {fileID: 11400000, guid: ac372fc7017d40e4ea492518e4686cda, type: 2}
-  - {fileID: 11400000, guid: 7956444dfa3ef3c4eacc5ef2263a016d, type: 2}
-  - {fileID: 11400000, guid: 728b1acf79db7c1479c3e8355a5c1f91, type: 2}
+  - {fileID: 11400000, guid: 1b92c5f167a55d64a956dd0b96f43c70, type: 2}
   gainedAbilities: []
-  maxAbilityCountPerLevel: 3
+  maxAbilityCountPerLevel: 2
 --- !u!4 &1566255646
 Transform:
   m_ObjectHideFlags: 0

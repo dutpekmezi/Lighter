@@ -6,8 +6,8 @@ namespace dutpekmezi
 {
     public class AbilitySystem : MonoBehaviour
     {
-        [SerializeField] private List<AbilityBase> abilities;       // master pool
-        [SerializeField] private List<AbilityBase> gainedAbilities; // acquired
+        [SerializeField] private List<AbilityBase> abilities;       // all abilities in game
+        [SerializeField] private List<AbilityBase> gainedAbilities; // owned by player
 
         public List<AbilityBase> Abilities => abilities;
         public List<AbilityBase> GainedAbilities => gainedAbilities;
@@ -52,18 +52,18 @@ namespace dutpekmezi
 
             var ability = abilities.FirstOrDefault(a => a != null && a.AbilityId == abilityId);
             if (ability == null) { Debug.LogWarning($"GainAbilityById: '{abilityId}' not in Abilities"); return null; }
-            if (gainedAbilities.Any(a => a != null && a.AbilityId == abilityId)) return null; // already owned
+            if (gainedAbilities.Any(a => a != null && a.AbilityId == abilityId)) return null;
 
             gainedAbilities.Add(ability);
-            ActivateAbility(ability); // run immediately if active-type
+            ActivateAbility(ability);
             return ability;
         }
 
         public AbilityBase GainAbility(AbilityBase ability)
         {
             if (ability == null) return null;
-            if (!abilities.Contains(ability)) { Debug.LogWarning("GainAbility: ability not in Abilities list"); return null; }
-            if (gainedAbilities.Any(a => a != null && a.AbilityId == ability.AbilityId)) return null; // already owned by id
+            if (!abilities.Contains(ability)) { Debug.LogWarning("GainAbility: not in Abilities list"); return null; }
+            if (gainedAbilities.Any(a => a != null && a.AbilityId == ability.AbilityId)) return null;
 
             gainedAbilities.Add(ability);
             ActivateAbility(ability);
@@ -83,7 +83,7 @@ namespace dutpekmezi
             if (character == null) { Debug.LogError("ActivateAbility: Character not found"); return ability; }
 
             ability.Listener(character);
-            if (ability.IsActive && ability.CanUse(character))
+            if ( ability.CanUse(character))
                 ability.Activate(character);
 
             return ability;
