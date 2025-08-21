@@ -6,8 +6,8 @@ namespace dutpekmezi
 {
     public class AbilitySystem : MonoBehaviour
     {
-        [SerializeField] private List<AbilityBase> abilities;       // all abilities in game
-        [SerializeField] private List<AbilityBase> gainedAbilities; // owned by player
+        [SerializeField] private List<AbilityBase> abilities;       // all abilities in project
+        [SerializeField] private List<AbilityBase> gainedAbilities; // player-owned runtime copies
 
         public List<AbilityBase> Abilities => abilities;
         public List<AbilityBase> GainedAbilities => gainedAbilities;
@@ -46,34 +46,63 @@ namespace dutpekmezi
             return found;
         }
 
+        // quick fetch for runtime owned copy
+        public AbilityBase GetGainedAbilityById(string abilityId)
+        {
+            if (string.IsNullOrEmpty(abilityId)) return null;
+            return gainedAbilities.FirstOrDefault(a => a != null && a.AbilityId == abilityId);
+        }
+
         public AbilityBase GainAbilityById(string abilityId)
         {
             if (string.IsNullOrEmpty(abilityId)) { Debug.LogWarning("GainAbilityById: empty id"); return null; }
 
-            var ability = abilities.FirstOrDefault(a => a != null && a.AbilityId == abilityId);
-            if (ability == null) { Debug.LogWarning($"GainAbilityById: '{abilityId}' not in Abilities"); return null; }
-            if (gainedAbilities.Any(a => a != null && a.AbilityId == abilityId)) return null;
+            // already have it -> just reactivate
+            var existing = GetGainedAbilityById(abilityId);
+            if (existing != null) { ActivateAbility(existing); return existing; }
 
-            gainedAbilities.Add(ability);
-            ActivateAbility(ability);
-            return ability;
+            var asset = abilities.FirstOrDefault(a => a != null && a.AbilityId == abilityId);
+            if (asset == null) { Debug.LogWarning($"GainAbilityById: '{abilityId}' not in Abilities"); return null; }
+
+            // always clone the asset into a runtime instance
+            var instance = ScriptableObject.Instantiate(asset);
+            gainedAbilities.Add(instance);
+            ActivateAbility(instance);
+            return instance;
         }
 
         public AbilityBase GainAbility(AbilityBase ability)
         {
             if (ability == null) return null;
-            if (!abilities.Contains(ability)) { Debug.LogWarning("GainAbility: not in Abilities list"); return null; }
-            if (gainedAbilities.Any(a => a != null && a.AbilityId == ability.AbilityId)) return null;
 
-            gainedAbilities.Add(ability);
-            ActivateAbility(ability);
-            return ability;
+            // prevent duplicates, reuse if found
+            var existing = GetGainedAbilityById(ability.AbilityId);
+            if (existing != null) { ActivateAbility(existing); return existing; }
+
+            // still add it even if not in main list
+            if (!abilities.Contains(ability)) { Debug.LogWarning("GainAbility: not in Abilities list"); }
+
+            // again, runtime copy so asset data stays clean
+            var instance = ScriptableObject.Instantiate(ability);
+            gainedAbilities.Add(instance);
+            ActivateAbility(instance);
+            return instance;
         }
 
         public AbilityBase ActivateAbilityById(string abilityId)
         {
-            var ability = GetAbilityById(abilityId, searchGainedFirst: true);
+            // prefer runtime if we own it
+            var ability = GetGainedAbilityById(abilityId);
+            if (ability == null) ability = GetAbilityById(abilityId, searchGainedFirst: false);
             if (ability == null) { Debug.LogWarning($"ActivateAbilityById: '{abilityId}' not found"); return null; }
+
+            // clone if this is still an asset ref
+            if (!gainedAbilities.Contains(ability))
+            {
+                ability = ScriptableObject.Instantiate(ability);
+                gainedAbilities.Add(ability);
+            }
+
             return ActivateAbility(ability);
         }
 
@@ -83,7 +112,7 @@ namespace dutpekmezi
             if (character == null) { Debug.LogError("ActivateAbility: Character not found"); return ability; }
 
             ability.Listener(character);
-            if ( ability.CanUse(character))
+            if (ability.CanUse(character))
                 ability.Activate(character);
 
             return ability;
@@ -105,6 +134,7 @@ namespace dutpekmezi
 
             if (pool.Count == 0) return new List<string>();
 
+            // quick shuffle
             for (int i = pool.Count - 1; i > 0; i--)
             {
                 int j = Random.Range(0, i + 1);

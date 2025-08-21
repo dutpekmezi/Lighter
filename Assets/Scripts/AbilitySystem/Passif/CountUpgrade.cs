@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace dutpekmezi
 {
@@ -6,36 +6,31 @@ namespace dutpekmezi
     public class CountUpgrade : AbilityBase
     {
         [SerializeField] private AbilityBase targetAbility;
-        // NOTE: This is kept for inspector wiring, but we will try to find the runtime instance by AbilityId.
+        // wired in inspector, but we resolve runtime copy by id
 
         public override void Activate(CharacterBase character)
         {
-            // pick runtime instance first (so we don't modify the asset copy)
-            AbilityBase target = null;
-            if (AbilitySystem.Instance != null && targetAbility != null && !string.IsNullOrEmpty(targetAbility.AbilityId))
-            {
-                target = AbilitySystem.Instance.GetAbilityById(targetAbility.AbilityId, searchGainedFirst: true);
-            }
-            // fallback to serialized reference if runtime not found (better than no-op)
-            if (target == null) target = targetAbility;
-            if (target == null) return;
+            if (targetAbility == null) return;
 
-            // compute how many to add (matches your existing scaling knobs)
+            // try to grab the runtime version instead of touching the asset
+            var runtime = AbilitySystem.Instance != null
+                ? AbilitySystem.Instance.GetGainedAbilityById(targetAbility.AbilityId)
+                : null;
+
+            // if player doesn't own it yet, nothing to do (could auto-gain but not now)
+            if (runtime == null) return;
+
             int addAmount = Mathf.RoundToInt(baseScaleAmount * scaleMultiplier);
             if (addAmount <= 0) return;
 
-            // clamp to MaxCount if configured (>0 means bounded, 0 means unlimited)
-            int max = target.MaxCount > 0 ? target.MaxCount : int.MaxValue;
-            int newCount = Mathf.Clamp(target.CurrentCount + addAmount, 0, max);
-
-            // update the field only; LightBall will notice the change itself in OrbitLoop
-            target.CurrentCount = newCount;
+            int max = runtime.MaxCount > 0 ? runtime.MaxCount : int.MaxValue;
+            runtime.CurrentCount = Mathf.Clamp(runtime.CurrentCount + addAmount, 0, max);
+            // LightBall will see CurrentCount change in its update loop and refresh itself
         }
 
         public override bool CanUse(CharacterBase character)
         {
-            // Upgrades should just apply; gating here can silently prevent Activate()
-            return targetAbility != null;
+            return targetAbility != null; // basic guard, don't overthink
         }
     }
 }
