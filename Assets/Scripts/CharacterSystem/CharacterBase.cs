@@ -5,11 +5,13 @@ namespace dutpekmezi
 {
     public class CharacterBase : MonoBehaviour
     {
-        // Delegate definition for level-up notifications. 
+        // Delegate definition for event notifications.
         public delegate void OnLevelUpEvent(CharacterBase character, int newLevel);
+        public delegate void OnExpGainedEvent(CharacterBase character, int currentExp);
 
         // Event that external systems can subscribe to when this character levels up.
         public event OnLevelUpEvent OnLevelUp;
+        public event OnExpGainedEvent OnExpGained;
 
         [Header("Assigned Datas")]
         [SerializeField] private CharacterData characterData; // data container I'm wiring in the inspector
@@ -106,6 +108,18 @@ namespace dutpekmezi
             {
                 LevelUp();
             }
+
+            OnExpGained?.Invoke(this, currentExp); // trigger delegate event with both character context and current exp
+        }
+
+        public int GetLevel()
+        {
+            return currentLevel;
+        }
+
+        public int GetExp()
+        {
+            return currentExp;
         }
     }
 }

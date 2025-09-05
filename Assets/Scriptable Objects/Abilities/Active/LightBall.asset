@@ -17,7 +17,7 @@ MonoBehaviour:
   Description: A light ball turning around you
   Icon: {fileID: 21300000, guid: 119f93d0bcbf1e743bf5fcf237507d39, type: 3}
   Background: {fileID: 0}
-  MaxCount: 5
+  MaxCount: 10
   CurrentCount: 0
   Speed: 0
   Damage: 0

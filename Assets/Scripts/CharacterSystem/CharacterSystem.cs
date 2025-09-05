@@ -24,16 +24,37 @@ namespace dutpekmezi
             }
 
             instance = this;
-        }
 
-        private void Start()
-        {
             character = FindAnyObjectByType<CharacterBase>();
         }
 
         public CharacterBase GetCharacter()
         {
             return character;
+        }
+
+        public int GetExpForNextLevel()
+        {
+            var character = GetCharacter();
+
+            return expForLevel[character.GetLevel()];
+        }
+
+        public int GetLevel()
+        {
+            var character = GetCharacter();
+
+            return character.GetLevel();
+        }
+
+        public int GetNextLevel()
+        {
+            return GetLevel() + 1;
+        }
+
+        public int GetExp()
+        {
+            return GetCharacter().GetExp();
         }
     }
 }

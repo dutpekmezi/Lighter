@@ -36,18 +36,11 @@ namespace dutpekmezi
                 character.OnLevelUp -= HandleLevelUp;
         }
 
-        private void HandleLevelUp(CharacterBase sender, int newLevel) // updated to match delegate signature
+        private void HandleLevelUp(CharacterBase sender, int newLevel)
         {
             DisplayAbilityCards();
         }
 
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.K))
-            {
-                DisplayAbilityCards();
-            }
-        }
         public void DisplayAbilityCards()
         {
             abilityCardsParent.gameObject.SetActive(true);
